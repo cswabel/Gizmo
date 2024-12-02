@@ -31,7 +31,7 @@ const float MAX_ANGLE = 180.0;
 // Helper function: Set servo PWM
 void setServoAngle(int pin, float angle) {
     float dutyCycle = map(angle, MIN_ANGLE, MAX_ANGLE, 5, 10); // Map angle to 5-10% duty cycle
-    analogWrite(pin, dutyCycle * 0.01, 50); // 50 Hz PWM
+    pwmWrite(pin, dutyCycle * 0.01, 50); // 50 Hz PWM
 }
 
 
@@ -123,15 +123,15 @@ void setup() {
     _sensor.begin();
      pixels.begin(); // This initializes the NeoPixel library.
      randomSeed(analogRead(0));
-}
+
 // Initialize servos
-pinMode(TILT_PIN, OUTPUT);
-pinMode(PAN_PIN, OUTPUT);
+    pinMode(TILT_PIN, OUTPUT);
+    pinMode(PAN_PIN, OUTPUT);
 
 // Set initial servo positions
-setServoAngle(TILT_PIN, tiltAngle);
-setServoAngle(PAN_PIN, panAngle);
-
+    setServoAngle(TILT_PIN, tiltAngle);
+    setServoAngle(PAN_PIN, panAngle);
+}
 
 // Loop
 void loop() {
@@ -187,7 +187,7 @@ void loop() {
         float hue = map(distanceMatrix[7-row][column],0,2000,359,0); // Example hue value
 
         float saturation = 1; // Example saturation value
-        float brightness = 0.05; // Example brightness value
+        float brightness = 0.025; // Example brightness value
         int r, g, b;
         
         HSBtoRGB(hue, saturation, brightness, r, g, b);
