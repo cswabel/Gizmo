@@ -18,6 +18,24 @@ static const uint8_t INT_PIN = 0;
 static const uint8_t LPN_PIN = 0;
 static const uint8_t INTEGRAL_TIME_MS = 10;
 
+// Servo pins
+#define TILT_PIN 0 // D0 for tilt servo
+#define PAN_PIN 1  // D1 for pan servo
+
+// Servo angle limits
+float panAngle = 90.0;  // Initial pan position
+float tiltAngle = 90.0; // Initial tilt position
+const float MIN_ANGLE = 0.0;
+const float MAX_ANGLE = 180.0;
+
+// Helper function: Set servo PWM
+void setServoAngle(int pin, float angle) {
+    float dutyCycle = map(angle, MIN_ANGLE, MAX_ANGLE, 5, 10); // Map angle to 5-10% duty cycle
+    analogWrite(pin, dutyCycle * 0.01, 50); // 50 Hz PWM
+}
+
+
+
 //vlc53l5cx
 static VL53L5CX_Arduino _sensor(LPN_PIN, INTEGRAL_TIME_MS, VL53L5CX::RES_8X8_HZ_1, &Wire, 0x29);
 static volatile bool _gotInterrupt = false;
@@ -106,6 +124,14 @@ void setup() {
      pixels.begin(); // This initializes the NeoPixel library.
      randomSeed(analogRead(0));
 }
+// Initialize servos
+pinMode(TILT_PIN, OUTPUT);
+pinMode(PAN_PIN, OUTPUT);
+
+// Set initial servo positions
+setServoAngle(TILT_PIN, tiltAngle);
+setServoAngle(PAN_PIN, panAngle);
+
 
 // Loop
 void loop() {
@@ -173,5 +199,34 @@ void loop() {
         pixels.show(); // This sends the updated pixel color to the hardware.
         //delay(100);
   }
+  // Calculate row and column sums
+int rowSums[8] = {0};
+int colSums[8] = {0};
+for (int r = 0; r < 8; r++) {
+    for (int c = 0; c < 8; c++) {
+        rowSums[r] += distanceMatrix[r][c];
+        colSums[c] += distanceMatrix[r][c];
+    }
+}
+
+// Find row and column with the smallest sum (closest object)
+int minRow = 0;
+int minCol = 0;
+for (int i = 1; i < 8; i++) {
+    if (rowSums[i] < rowSums[minRow]) {
+        minRow = i;
+    }
+    if (colSums[i] < colSums[minCol]) {
+        minCol = i;
+    }
+}
+
+// Update servo angles
+tiltAngle = map(minRow, 0, 7, MIN_ANGLE, MAX_ANGLE);
+panAngle = map(minCol, 0, 7, MIN_ANGLE, MAX_ANGLE);
+
+setServoAngle(TILT_PIN, tiltAngle);
+setServoAngle(PAN_PIN, panAngle);
+
 // delay(1000);
 }
