@@ -5,6 +5,8 @@
 #include "debugger.hpp"
 #include <libraries/Adafruit_NeoPixel/Adafruit_NeoPixel.h>
 #include <libraries/Adafruit_NeoPixel/matrix.hpp>
+#include <iostream>
+#include <cmath>
 
 #define FALLING 2
 #define LOW     0
@@ -23,25 +25,67 @@ static volatile bool _gotInterrupt = false;
 //neopixel setup
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, NEO_GRB + NEO_KHZ800);
 // Interrupt handler
-//static void interruptHandler() {
- //   _gotInterrupt = true;
-//}
+/*static void interruptHandler() {
+    _gotInterrupt = true;
+}*/
 //Matrix:)
 int distanceMatrix[8][8];
 
 // Previous state for edge detection
-int previousState = HIGH;
+//int previousState = HIGH;
 
 // Edge detection
-void checkInterrupt(BelaContext *context, int pin, void (*handler)()) {
+/*void checkInterrupt(BelaContext *context, int pin, void (*handler)()) {
     int currentState = digitalRead(context, 0, pin);
     if (previousState == HIGH && currentState == LOW) {
         handler();
     }
     previousState = currentState;
-}
+}*/
 
-// Constants
+// HSBtoRGB
+void HSBtoRGB(float hue, float saturation, float brightness, int &r, int &g, int &b) {
+    float chroma = brightness * saturation;
+    float h_prime = hue / 60.0;
+    float x = chroma * (1 - fabs(fmod(h_prime, 2) - 1));
+    float m = brightness - chroma;
+
+    float r1, g1, b1;
+
+    if (0 <= h_prime && h_prime < 1) {
+        r1 = chroma;
+        g1 = x;
+        b1 = 0;
+    } else if (1 <= h_prime && h_prime < 2) {
+        r1 = x;
+        g1 = chroma;
+        b1 = 0;
+    } else if (2 <= h_prime && h_prime < 3) {
+        r1 = 0;
+        g1 = chroma;
+        b1 = x;
+    } else if (3 <= h_prime && h_prime < 4) {
+        r1 = 0;
+        g1 = x;
+        b1 = chroma;
+    } else if (4 <= h_prime && h_prime < 5) {
+        r1 = x;
+        g1 = 0;
+        b1 = chroma;
+    } else if (5 <= h_prime && h_prime < 6) {
+        r1 = chroma;
+        g1 = 0;
+        b1 = x;
+    } else {
+        r1 = 0;
+        g1 = 0;
+        b1 = 0;
+    }
+
+    r = (r1 + m) * 255;
+    g = (g1 + m) * 255;
+    b = (b1 + m) * 255;
+}
 
 
 // Setup
@@ -65,9 +109,10 @@ void setup() {
 
 // Loop
 void loop() {
-    if (INT_PIN == 0 || _gotInterrupt) {
+    
+    /*if (INT_PIN == 0 || _gotInterrupt) {
         _gotInterrupt = false;
-
+*/
         while (!_sensor.dataIsReady()) {
             delay(10);
         }
@@ -75,33 +120,58 @@ void loop() {
         _sensor.readData();
 
         for (auto i = 0; i < _sensor.getPixelCount(); i++) {
-            int row = int(i/_sensor.getPixelCount());
+            int row = int(i/8);
             int column = i%8;
-            distanceMatrix[row][column] = _sensor.getDistanceMm(i);
+            //Debugger::printf("Zone: %2d %2d %2d , ",i,row,column);
+
+            
             Debugger::printf("Zone: %2d, Nb targets: %2u, Ambient: %4lu Kcps/spads, ",
                              i, _sensor.getTargetDetectedCount(i), _sensor.getAmbientPerSpad(i));
 
             if (_sensor.getTargetDetectedCount(i) > 0) {
                 Debugger::printf("Target status: %3u, Distance: %4d mm\n",
                                  _sensor.getTargetStatus(i), _sensor.getDistanceMm(i));
+                                 
+                                 
+	                
+	            if (_sensor.getDistanceMm(i)>2000){
+	                distanceMatrix[row][column]=2000;
+	
+	            }else{
+	                distanceMatrix[row][column] = _sensor.getDistanceMm(i);
+	            }
+            
             } else {
                 Debugger::printf("Target status: 255, Distance: No target\n");
             }
-        }
+        
         Debugger::printf("\n");
 
+        }//}
 
-    }
+    
     // For a set of NeoPixels the first NeoPixel is 0, second is 1, all the way up to the count of pixels minus one.
-    int rndRedValue = random(0,5);
-    int rndGreenValue = random(0,5);
-    int rndBlueValue = random(0,5);
+  
     for(int i=0;i<NUMPIXELS;i++)
     {
+        int row = int(i/8);
+        int column = i%8;
+      
+
+        float hue = map(distanceMatrix[7-row][column],0,2000,359,0); // Example hue value
+
+        float saturation = 1; // Example saturation value
+        float brightness = 0.05; // Example brightness value
+        int r, g, b;
+        
+        HSBtoRGB(hue, saturation, brightness, r, g, b);
+
+       // std::cout << "RGB: (" << r << ", " << g << ", " << b << ") H:  " << hue << std::endl;
         // pixels.Color takes RGB values, from 0,0,0 up to 255,255,255
-        pixels.setPixelColor(i, pixels.Color(rndRedValue,rndGreenValue,rndBlueValue)); // Moderately bright green color.
+        pixels.setPixelColor(i, pixels.Color(r,g,b)); // Moderately bright green color.
+        
         pixels.show(); // This sends the updated pixel color to the hardware.
-        //delay(delayval);
+        //delay(100);
   }
-    delay(1000);
+// delay(1000);
 }
