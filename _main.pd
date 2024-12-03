@@ -1,0 +1,8 @@
+#N canvas 393 79 892 272 12;
+#X obj 107 187 dac~;
+#X obj 401 190 s bela_arduino;
+#X obj 107 46 adc~;
+#X text 155 48 Audio inputs come from here;
+#X text 154 189 Send audio outputs to here;
+#X text 520 192 Messages sent here can be received in ino.cpp;
+#X text 394 46 [r messageName] boxes can receive messages from ino.cpp sent to "messageName", f 42;
