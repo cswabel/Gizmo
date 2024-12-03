@@ -237,4 +237,6 @@ We have built on the library provided by simon d levy for the vl53l5cx sensor ht
 We have also used the Adafruit NeoPixel library for the neopixel matrix https://github.com/adafruit/Adafruit_NeoPixel .
 For the HSB to RGB conversion we have used the bing chat suggested code https://www.bing.com/videos/search?q=hsb+to+rgb+conversion+code&docid=608034073073&mid=3D
 With thanks to Teresa pelinski for help with the matrix code for the neopixels and to chat gpt for help with the matrix summing for the servos.
+
+https://www.arduinolearning.com/code/ws2812-8x8-64-led-matrix-arduino-examples.php we used this code to help us with the neopixel matrix
 */
