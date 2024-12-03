@@ -1,0 +1,17 @@
+
+-include libraries/Adafruit_NeoPixel/build/Makefile.link
+-include libraries/BelaArduino/build/Makefile.link
+-include libraries/BelaLibpd/build/Makefile.link
+-include libraries/Fft/build/Makefile.link
+-include libraries/Gui/build/Makefile.link
+-include libraries/Midi/build/Makefile.link
+-include libraries/Pipe/build/Makefile.link
+-include libraries/Scope/build/Makefile.link
+-include libraries/Serial/build/Makefile.link
+-include libraries/ShiftRegister/build/Makefile.link
+-include libraries/Trill/build/Makefile.link
+-include libraries/WSServer/build/Makefile.link
+-include libraries/Watcher/build/Makefile.link
+-include libraries/WriteFile/build/Makefile.link
+-include libraries/libpd/build/Makefile.link
+-include libraries/ne10/build/Makefile.link
