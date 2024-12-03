@@ -19,8 +19,8 @@ static const uint8_t LPN_PIN = 0;
 static const uint8_t INTEGRAL_TIME_MS = 10;
 
 // Servo pins
-#define TILT_PIN 0 // D0 for tilt servo
-#define PAN_PIN 1  // D1 for pan servo
+#define TILT_PIN 1 // D0 for tilt servo
+#define PAN_PIN 0  // D1 for pan servo
 
 // Servo angle limits
 float panAngle = 90.0;  // Initial pan position
@@ -187,7 +187,7 @@ void loop() {
         float hue = map(distanceMatrix[7-row][column],0,2000,359,0); // Example hue value
 
         float saturation = 1; // Example saturation value
-        float brightness = 0.025; // Example brightness value
+        float brightness = 0.015; // Example brightness value
         int r, g, b;
         
         HSBtoRGB(hue, saturation, brightness, r, g, b);
@@ -222,7 +222,7 @@ for (int i = 1; i < 8; i++) {
 }
 
 // Update servo angles
-tiltAngle = map(minRow, 0, 7, MIN_ANGLE, MAX_ANGLE);
+tiltAngle = map(minRow, 7, 0, MIN_ANGLE, MAX_ANGLE);
 panAngle = map(minCol, 0, 7, MIN_ANGLE, MAX_ANGLE);
 
 setServoAngle(TILT_PIN, tiltAngle);
